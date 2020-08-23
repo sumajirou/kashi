@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cd $(dirname $0)
+
 function usage {
     cat <<EOF
 $(basename ${0}) は歌ネット(www.uta-net.com)から歌詞を検索して表示するCLIツールです．
