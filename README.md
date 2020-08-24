@@ -11,7 +11,7 @@
 ## 使用方法
 
 ```shell
-$ alias kashi='docker run --rm -it sumajirou/kashi:0.1.1'
+$ alias kashi='docker run --rm -it sumajirou/kashi:latest'
 $ kashi --help
 kashi は歌ネット(www.uta-net.com)から歌詞を検索して表示するCLIツールです．
 オプションを指定しない時は歌手名で検索します．
