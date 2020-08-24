@@ -5,17 +5,20 @@ require 'open-uri'
 require 'addressable/uri'
 
 url = ARGV[0] || 'https://www.uta-net.com/search/?Aselect=1&Bselect=3&Keyword=babymetal&sort=4'
-url = Addressable::URI.encode(url)
-
-unless url.include?('https://www.uta-net.com')
-  puts "invalid URL."
+begin
+  url = Addressable::URI.encode(url)
+  unless url.include?('https://www.uta-net.com') then
+    raise URI::InvalidURIError
+  end
+rescue
+  STDERR.puts "invalid URL."
   exit 1
 end
 
 begin
   html = Nokogiri::HTML(URI.open(url))
 rescue
-  puts "Not Found."
+  STDERR.puts "Not Found."
   exit 1
 end
 

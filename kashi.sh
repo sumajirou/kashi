@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 cd $(dirname $0)
 
-function usage {
-    cat <<EOF
+function usage() {
+  cat <<EOF
 kashi は歌ネット(www.uta-net.com)から歌詞を検索して表示するCLIツールです．
 オプションを指定しない時は歌手名で検索します．
 複数のオプションを指定した場合最後のオプションのみ有効です．
@@ -21,57 +23,58 @@ Options:
 EOF
 }
 
-OPT=`getopt -o talch -l title,artist,lyricist,composer,help -- "$@"`
-if [ $? != 0 ] ; then
-    exit 1
+OPT=$(getopt -o talch -l title,artist,lyricist,composer,help -- "$@")
+if [ $? != 0 ]; then
+  exit 1
 fi
 eval set -- "$OPT"
 
-A_SELECT=1
-while true
-do
-    case $1 in
-        -t | --title)
-						A_SELECT=2
-            shift
-            ;;
-        -a | --artist)
-						A_SELECT=1
-            shift
-            ;;
-        -l | --lyricist)
-						A_SELECT=3
-            shift
-            ;;
-        -c | --composer)
-						A_SELECT=8
-            shift
-            ;;
-        -h | --help)
-						usage
-						exit 0
-            ;;
-        --)
-            shift
-            break
-            ;;
-        *)
-            echo "Internal error!" 1>&2
-            exit 1
-            ;;
-    esac
-done
-
-if [ -z $1 ] ; then
+a_select=1
+while true; do
+  case $1 in
+  -t | --title)
+    a_select=2
+    shift
+    ;;
+  -a | --artist)
+    a_select=1
+    shift
+    ;;
+  -l | --lyricist)
+    a_select=3
+    shift
+    ;;
+  -c | --composer)
+    a_select=8
+    shift
+    ;;
+  -h | --help)
     usage
     exit 0
+    ;;
+  --)
+    shift
+    break
+    ;;
+  *)
+    echo "Internal error!" 1>&2
+    exit 1
+    ;;
+  esac
+done
+
+if [ -z $1 ]; then
+  usage
+  exit 0
 fi
 
-URL="https://www.uta-net.com/search/?Aselect=${A_SELECT}&Keyword=${1}&Bselect=3&sort=4"
-
-./search.rb $URL |
+URL="https://www.uta-net.com/search/?Aselect=${a_select}&Keyword=${1}&Bselect=3&sort=4"
+list=$(./search.rb $URL)
+if [ $? != 0 ]; then
+  exit 1
+fi
+echo "$list" |
   column -t -s "	" |
   fzf --reverse --height 40% |
-  awk  '{print $NF}' |
+  awk '{print $NF}' |
   xargs ./get_lyrics.rb
-
