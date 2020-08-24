@@ -7,9 +7,18 @@ require 'addressable/uri'
 url = ARGV[0] || 'https://www.uta-net.com/search/?Aselect=1&Bselect=3&Keyword=babymetal&sort=4'
 url = Addressable::URI.encode(url)
 
-exit unless url.include?('https://www.uta-net.com')
+unless url.include?('https://www.uta-net.com')
+  puts "invalid URL."
+  exit 1
+end
 
-html = Nokogiri::HTML(URI.open(url))
+begin
+  html = Nokogiri::HTML(URI.open(url))
+rescue
+  puts "Not Found."
+  exit 1
+end
+
 puts ["[index]","[タイトル]", "[歌手]", "[作詞家]", "[作曲家]", "[URL]"].join("\t")
 html.css('tbody tr').each_with_index do |row, i|
   title = row.css('.td1 a').first.text
